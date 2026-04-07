@@ -1,7 +1,6 @@
 #include<iostream>
 #include<string>
 #include<fstream>
-
 using namespace std;
 const double rate = 20.0 / 100;
 // project file
@@ -53,9 +52,9 @@ struct sign {
 	
 };
 int main()
-{
+{	
+    string user;
 	string password;
-	string user;
 	char c;
 	cout << "DO you want to sign up or login (s/l)" << endl;
 	cin >> c;
@@ -76,8 +75,16 @@ int main()
 		}
 		else if (c == 'l')
 		{
-
-
+			cout << "Please enter your username" << endl;
+			cin.ignore();
+			getline(cin, user);
+			cout << "Please enter your password" << endl;
+			cin.ignore();
+			getline(cin, password);
+			ifstream file("login.txt");                          //we just need to make the login loop and make the program make sure that the username and password are correct 
+			file >> user >> password;                            //and then we can move on to the next part of the program
+														   
+			
 		}
 		else
 			cout << "There was an error please enter the right letter " << endl;
