@@ -97,7 +97,7 @@ int main()
 		char r;
 		cin >> r;
 		cin.ignore();
-		if(r!='c' || r!='s' || r!='m' || r!='q'){
+		if(r!='c' && r!='s' && r!='m' && r!='q'){
 			cout << "There was an error please enter the right letter " << endl;
 			continue;
 		}
@@ -240,6 +240,7 @@ int main()
 
 			}
 		}
-		cout << "Welcome to our rental cars online program" << endl;
+		
 	}
+	cout << "Welcome to our rental cars online program" << endl;
 }
