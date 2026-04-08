@@ -14,6 +14,7 @@ struct car {
 	char condition;   //(T=total loss,D=damged,G=Good,P=perfect)
 	double rate;         //(Intrest rate if late on payment)
 	string details[1000];
+	double milage;     //milage of the car
 
  };
  //user  info (customer or staff or manager or quality control info)
@@ -52,38 +53,52 @@ struct sign {
 	
 };
 int main()
-{	
+{
+	string line;
+	string record;
     string user;
 	string password;
 	char c;
-	cout << "DO you want to sign up or login (s/l)" << endl;
-	cin >> c;
+	
+	record = user + "," + password;
+	bool verified = false;
 	while (true) 
-	{
+	{   cout << "DO you want to sign up or login (s/l)" << endl;
+	    cin >> c;
 		if (c == 's')
 		{
 			cout << "Please enter your username" << endl;
-			cin.ignore();
 			getline(cin, user);
-			cout << "Please enter your password" << endl;
 			cin.ignore();
+			cout << "Please enter your password" << endl;			
 			getline(cin, password);
+			cin.ignore();
 			ofstream file("login.txt");
-			file << user << password;
+			file << record;
 			file.close();
+			cout << "You have successfully signed up :)" << endl;
 			break;
 		}
 		else if (c == 'l')
 		{
-			cout << "Please enter your username" << endl;
-			cin.ignore();
-			getline(cin, user);
-			cout << "Please enter your password" << endl;
-			cin.ignore();
-			getline(cin, password);
-			ifstream file("login.txt");                          //we just need to make the login loop and make the program make sure that the username and password are correct 
-			file >> user >> password;                            //and then we can move on to the next part of the program
-														   
+			while (verified == false)
+			{
+				bool verified = false;
+				cout << "Please enter your username" << endl;
+				getline(cin, user);
+				cin.ignore();
+				cout << "Please enter your password" << endl;
+				getline(cin, password);
+				cin.ignore();
+				ifstream file("login.txt");                          //we just need to make the login loop and make the program make sure that the username and password are correct 
+				file >> record;
+				if (record == user + "," + password)
+				{
+					verified = true;
+					break;
+				}                           //and then we can move on to the next part of the program
+				cout << "Incorrect username or password, please try again" << endl;
+			} break;
 			
 		}
 		else
