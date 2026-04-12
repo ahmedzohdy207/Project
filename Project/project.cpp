@@ -174,11 +174,18 @@ int main()
 			}
 			else if (c == 'l')
 			{
+				cout << "Enter user and password" << endl;
+				cout << "user:" << endl;
+				string m;
+				getline(cin, m);
+				cout << "password:" << endl;
+				string j;
+				getline(cin, j);
 				ifstream infile;
 				infile.open("login.txt");
-				getline(infile, user, ',');
-				getline(infile, password);
-				bool status = login(user, password);
+				getline(infile, m, ',');
+				getline(infile, j);
+				bool status = login(m, j);
 				{
 					if (status) {
 						cout << "welcome back" << user << endl;
