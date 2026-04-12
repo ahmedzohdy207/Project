@@ -25,13 +25,13 @@ struct car {
 }inventory[100]; 
 //fuctions: payment ,methods(cash/visa)
 struct visa {
-	string first_name[100];
-	string last_name[100];
-	string card_type[20];   //card type(visa/mastercard/american express) 
+	string first_name;
+	string last_name;
+	string card_type;   //card type(visa/mastercard/american express) 
 	double card_number;
 	double total_amount;     //total amount to be paid
 	int cvv;
-	double expiration_date;   //expiration date of the card  
+	string expiration_date;   //expiration date of the card  
 	string billing_address[100];   //billing address of the cardholder
 	double pn;     //PHONE NUMBER=pn
 };
@@ -74,11 +74,7 @@ struct manager {
 		int years_in_company;          //number of years the manager has been with the company(optional)
 };
  //quality control: their staff,date of inspection,severity of inspection(number of defective cars and their conditions)
-struct control {
-	string name[100];
 
-
-};
  //login and sign up and the info is saved in an array
 bool login(string user, string password) {
 	ifstream file("login.txt");
@@ -93,6 +89,10 @@ bool login(string user, string password) {
 };
 int main()
 {
+	visa credit[100];
+	int day;
+	int month;
+	int year;
 	const double rate = 20.0 / 100;
 	string line;
 	string record;
@@ -134,6 +134,10 @@ int main()
 			}
 			else if (c == 'l')
 			{
+				ifstream infile;
+				infile.open("login.txt");
+				getline(infile, user, ',');
+				getline(infile, password);
 				bool status = login(user, password);
 				{
 					if (status) {
@@ -170,6 +174,10 @@ int main()
 			}
 			else if (c == 'l')
 			{
+				ifstream infile;
+				infile.open("login.txt");
+				getline(infile, user, ',');
+				getline(infile, password);
 				bool status = login(user, password);
 				{
 					if (status) {
@@ -205,6 +213,10 @@ int main()
 			}
 			else if (c == 'l')
 			{
+				ifstream infile;
+				infile.open("login.txt");
+				getline(infile, user, ',');
+				getline(infile, password);
 				bool status = login(user, password);
 				{
 					if (status) {
@@ -239,6 +251,10 @@ int main()
 			}
 			else if (c == 'l')
 			{
+				ifstream infile;
+				infile.open("login.txt");
+				getline(infile, user, ',');
+				getline(infile, password);
 				bool status = login(user, password);
 				{
 					if (status) {
@@ -260,49 +276,53 @@ int main()
 	int carcount;
 	cout << "Welcome "<<user<<" to our rental cars online program" << endl;
 	if (c == 's') {
-		cout << "you can add cars to the inventory" << endl;
-			cout << "You can add cars to the inventory by providing details such as car type, model, license plate, condition, milage, year and color" << endl;
-			cout << "how many cars do you want to add?" << endl;
-			int num;
-			cin >> num;
-			cin.ignore();
-			int carCount = 0;
-			for (int i=0 ; i < num; i++)
-			{
-				carCount = i + 1;
-				carcount = carCount;
-				cout<<"car "<<i+1<<endl;	
-				cout << "Enter the car type" << endl;
-				getline(cin, inventory[i].car_type);
-				cout << "Enter the model" << endl;
-				getline(cin, inventory[i].model);
-				cout << "Enter the license plate" << endl;
-				getline(cin, inventory[i].lp);
-				cout << "Enter the condition (T=total loss,D=damaged,G=Good,P=perfect)" << endl;
-				cin >> inventory[i].condition;
-				cout << "Enter the milage" << endl;
-				cin >> inventory[i].milage;
-				cout << "Enter the year" << endl;
-				cin >> inventory[i].year;
+			cout << "You can add cars to the inventory by providing details such as car type, model, license plate, condition, milage, year and color(a) or remove cars from inventory (r) or view Inspection date(d)" << endl;
+			char z;
+			cin >> z;
+			if (z=='a') {
+				cout << "how many cars do you want to add?" << endl;
+				int num;
+				cin >> num;
 				cin.ignore();
-				cout << "Enter the color" << endl;
-				getline(cin, inventory[i].color);
-				cout << "is the car available for rent? (1 for yes, 0 for no)" << endl;
-				cin >> inventory[i].available;
-				cout << "Enter the rental price per week " << endl;
-				cin >> inventory[i].price;
-				cout << "Do you want to add more cars to inventory(y/n)" << endl;
-				char g;
-				cin >> g;
-				if (g == 'n') {
-					break;
-				}
-				else  {
-					continue;
+				int carCount = 0;
+			
+				for (int i = 0; i < num; i++)
+				{
+					carCount = i + 1;
+					carcount = carCount;
+					cout << "car " << i + 1 << endl;
+					cout << "Enter the car type" << endl;
+					getline(cin, inventory[i].car_type);
+					cout << "Enter the model" << endl;
+					getline(cin, inventory[i].model);
+					cout << "Enter the license plate" << endl;
+					getline(cin, inventory[i].lp);
+					cout << "Enter the condition (T=total loss,D=damaged,G=Good,P=perfect)" << endl;
+					cin >> inventory[i].condition;
+					cout << "Enter the milage" << endl;
+					cin >> inventory[i].milage;
+					cout << "Enter the year" << endl;
+					cin >> inventory[i].year;
+					cin.ignore();
+					cout << "Enter the color" << endl;
+					getline(cin, inventory[i].color);
+					cout << "is the car available for rent? (1 for yes, 0 for no)" << endl;
+					cin >> inventory[i].available;
+					cout << "Enter the rental price per week " << endl;
+					cin >> inventory[i].price;
+					cout << "Do you want to add more cars to inventory(y/n)" << endl;
+					char g;
+					cin >> g;
+					if (g == 'n') {
+						break;
+					}
+					else {
+						continue;
+					}
 				}
 			}
-		}
-		else if (c == 'r') {
+		
+		else if (z == 'r') {
 			cout << "You can remove cars from the inventory" << endl;
 			cout << "enter the number of the car you want to remove" << endl;
 			int remove;
@@ -314,6 +334,7 @@ int main()
 					for (int i = target; i < carcount; i++) {
 						inventory[i] = inventory[i + 1];
 					}
+			
 					carcount--;
 					cout << "car number " << remove << "has been removed sucessfully" << endl;
 					cout << "Do you want to remove another car(y/n)" << endl;
@@ -331,17 +352,114 @@ int main()
 				}
 			}
 		}
-		
+		else if (z == 'v') {
+				ifstream infile;
+				infile.open("date.txt");
+				char slash='/';
+				infile >> day >> slash >> month>>slash >> year;
+			}
+			}
 		
 	
-	else if(c=='m'){
-		cout << "As a manager you can manage staff members, oversee operations, set company policies and make strategic decisions" << endl;
-	}
-	else if(c=='q'){
-		cout << "As a quality control inspector you can inspect the cars for defects and ensure they meet safety standards" << endl;
-	}
+
 	else if(c=='c'){
 		cout << "As a customer you can browse available cars, make reservations, and manage your rentals" << endl;
+		cout << "car number" << "---" << "type" << "---" << "model" << "---" << "license plate" << "---" << " color" << "---" << "car condition" << "---" <<"Milage"<<"---" << "year" << "---" << " price" << endl;
+		for (int i = 0; i < 100; i++) {
+			cout << i + 1 << "---" << inventory[i].car_type << "---" << inventory[i].model << "---" << inventory[i].lp << "---" << inventory[i].color << "---" << inventory[i].condition;
+			cout << "---" << inventory[i].milage << "---" << inventory[i].year << "---" << inventory[i].price << endl;
+		}
+		while (true) {
+			cout << "what is the number of the car you want to rent" << endl;
+			int num2;
+			cin >> num2;
+			cout << num2 << "---" << inventory[num2].car_type << "---" << inventory[num2].model << "---" << inventory[num2].lp << "---" << inventory[num2].color << "---" << inventory[num2].condition;
+			cout << "---" << inventory[num2].milage << "---" << inventory[num2].year << "---" << inventory[num2].price << endl;
+			cout << "is this is the car you want to rent(y/n)" << endl;
+			char b;
+			cin >> b;
+			if (b == 'n') {
+				continue;
+			}
+			else if (b != 'y' && b != 'n') {
+				cout << "Please enter the right letter" << endl;
+				continue;
+			}
+			else if (b == 'y') {
+				cout << "The rent price for the car is:" << inventory[num2].price << endl;
+				cout << "would you like to pay cash(c) or visa(v)"<<endl;
+				char e;
+				if (e == 'c') {
+					cout << "Please come at our nearest store to you to pay for your rental car:)" << endl;
+				}
+				else if (e == 'v') {
+					cout << "please enter your first name" << endl;
+					cin.ignore();
+					getline(cin, credit->first_name);
+					cout << "please enter your last name" << endl;
+					getline(cin, credit->last_name);
+					cout << "please enter your card type" << endl;
+					getline(cin, credit->card_type);
+					cout << "please enter your card number" << endl;
+					cin >> credit->card_number;
+					cout << "please enter your cvv number" << endl;
+					cin >> credit->cvv;
+					cout << "please enter your expiration date" << endl;
+					cin.ignore();
+				    getline(cin,credit->expiration_date);
+					cout << "Thank you for using our online rental car system:)" << endl;
+				}
+			}
+		}
+	}
+	else if (c == 'q') {
+		cout << "As a quality control you can view staff(v) , add date of inspection(d),severity of inspection(s)(number of defective cars and their conditions)" << endl;
+		char o;
+		cin >> o;
+		if (o == 'v') {
+                                                    //do we put the staff login or details or struct and put the login and name or delete it ?
+			                                        //it only needs thereservation too and it will be completed
+		}
+		else if (o == 'd') {
+			cout << "enter day of inspection" << endl;
+			cin >> day;
+			cout << "enter month of inspection" << endl;
+			cin >> month;
+			cout << "enter year of inspection" << endl;
+			cin >> year;
+			cout << "Inspection date is " << day << "/" << month << "/" << year << "/" << endl;
+			ofstream file("date.txt");
+				file << day<<"/"<<month<<"/"<<year;
+				file.close();
+
+		}
+		else if (o == 's') {
+			int Total_loss=0;
+			int Damaged=0;
+			int Good=0;
+			int Perfect=0;
+			for (int i = 0; i < 100; i++) {
+				cout << "The car number" << i + 1 << "is" << inventory[i].condition<<"Where (T=total loss,D=damaged,G=Good,P=perfect)  " << endl;
+				if (inventory[i].condition == 'T') {
+					Total_loss = Total_loss + 1;
+				}
+				else if (inventory[i].condition == 'D') {
+					Damaged = Damaged + 1;
+				}
+				else if (inventory[i].condition == 'G') {
+					Good = Good + 1;
+				}
+				else if (inventory[i].condition == 'P') {
+					Perfect = Perfect + 1;
+				}
+				
+			}
+			cout << "number of total loss cars is:" << Total_loss << endl;
+			cout << "number of damaged cars is:" << Damaged<< endl;
+			cout << "number of cars in good condition is:" << Good << endl;
+			cout << "number of cars in perfect condition is:" << Perfect<< endl;
+		}
+
 	}
 
 }
