@@ -62,17 +62,66 @@ struct customer {
  //quality control: their staff,date of inspection,severity of inspection(number of defective cars and their conditions)
 
  //login and sign up and the info is saved in an array
-bool login(string m, string j,string filename) {
+bool login(string m, string j, string filename) {
 	ifstream file(filename);
 	string record;
-	while (getline(file,record)) {
+	while (getline(file, record)) {
 		if (record == m + "," + j) {
 			return true;
 		}
-	}
-	return false;
 
-};
+		return false;
+
+	}
+}
+void carz_staff(car inventory[100], int carcount) {
+	ofstream ifile("inventory.txt", ios::app);
+	string line;
+	bool status;
+	cout << "car number" << "---" << "type" << "---" << "model" << "---" << "license plate" << "---" << " color" << "---" << "car condition" << "---" << "Milage" << "---" << "year" << "---" << " price" << endl;
+	for (int i = 0; i < carcount; i++) {
+		cout << i + 1 << "---" << inventory[i].car_type << "---" << inventory[i].model << "---" << inventory[i].lp << "---" << inventory[i].color << "---" << inventory[i].condition;
+		cout << "---" << inventory[i].milage << "---" << inventory[i].year << "---" << inventory[i].price << endl;
+		line = to_string(i + 1) + "---" + inventory[i].car_type + "---" + inventory[i].model + "---" + inventory[i].lp + "---" + inventory[i].color + "---" + inventory[i].condition;
+		ifile << line << endl;
+		if (inventory[i].available) {
+			status = true;
+		}
+		else if (!inventory[i].available) {
+			status = false;
+			cout << "car number " << i + 1 << "is not available for rent" << endl;
+			ifile << "car number " << i + 1 << "is not available for rent" << endl;
+			continue;
+		}
+	}
+	ifile.close();
+}
+
+void carz_customer (car inventory[100], int carcount) {
+	ifstream ifile("inventory.txt", ios::app);
+	string line;
+	bool status;
+	cout << "car number" << "---" << "type" << "---" << "model" << "---" << "license plate" << "---" << " color" << "---" << "car condition" << "---" << "Milage" << "---" << "year" << "---" << " price" << endl;
+	for (int i = 0; i < carcount; i++) {
+		cout << i + 1 << "---" << inventory[i].car_type << "---" << inventory[i].model << "---" << inventory[i].lp << "---" << inventory[i].color << "---" << inventory[i].condition;
+		cout << "---" << inventory[i].milage << "---" << inventory[i].year << "---" << inventory[i].price << endl;
+		line = to_string(i + 1) + "---" + inventory[i].car_type + "---" + inventory[i].model + "---" + inventory[i].lp + "---" + inventory[i].color + "---" + inventory[i].condition;
+		ifile >> line;
+		if (inventory[i].available) {
+			status = true;
+		}
+		else if (!inventory[i].available) {
+			status = false;
+			cout << "car number " << i + 1 << "is not available for rent" << endl;
+			continue;
+
+		}
+
+	}
+	ifile.close();
+}
+
+
 int main()
 {
 	int carcount=0;
@@ -104,11 +153,14 @@ int main()
 		}
 		while (r=='c')
 		{
-			cout << "DO you want to sign up or login (s/l)" << endl;
+			cout << "DO you want to sign up or login or exit to the main menu (s/l/e) " << endl;
 			cin >> c;
 			cin.ignore();
-			if (c != 'l' && c != 's') {
+			if (c != 'l' && c != 's' && c != 'e') {
 				cout << "There was an error please enter the right letter " << endl;
+			}
+			if (c == 'e') {
+				break;                                                          //To end the customer infinte loop and return to the main menu
 			}
 			if (c == 's')
 			{
@@ -139,19 +191,28 @@ int main()
 					}
 					else if (status)
 					{
-						cout << "welcome back" << m << endl;
+						cout << "welcome back " << m << endl;
 						cout << "As a customer you can browse available cars, make reservations, and manage your rentals" << endl;
 						cout << "car number" << "---" << "type" << "---" << "model" << "---" << "license plate" << "---" << " color" << "---" << "car condition" << "---" << "Milage" << "---" << "year" << "---" << " price" << endl;
 						for (int i = 0; i < carcount; i++) {
 							cout << i + 1 << "---" << inventory[i].car_type << "---" << inventory[i].model << "---" << inventory[i].lp << "---" << inventory[i].color << "---" << inventory[i].condition;
 							cout << "---" << inventory[i].milage << "---" << inventory[i].year << "---" << inventory[i].price << endl;
+							carz_customer(inventory, carcount); {
+								ifstream infile;
+								infile.open("inventory.txt");
+								while (getline(infile, line)) {
+									cout << line << endl;
+								}
+								infile.close();
+							}
+
 						}
 						while (true) {
 							cout << "what is the number of the car you want to rent" << endl;
 							int num2;
 							cin >> num2;
-							cout << num2 << "---" << inventory[num2].car_type << "---" << inventory[num2].model << "---" << inventory[num2].lp << "---" << inventory[num2].color << "---" << inventory[num2].condition;
-							cout << "---" << inventory[num2].milage << "---" << inventory[num2].year << "---" << inventory[num2].price << endl;
+							cout << num2 << "---" << inventory[num2 - 1].car_type << "---" << inventory[num2 - 1].model << "---" << inventory[num2 - 1].lp << "---" << inventory[num2 - 1].color << "---" << inventory[num2 - 1].condition;
+							cout << "---" << inventory[num2 - 1].milage << "---" << inventory[num2 - 1].year << "---" << inventory[num2 - 1].price << endl;
 							cout << "is this is the car you want to rent(y/n)" << endl;
 							char b;
 							cin >> b;
@@ -163,7 +224,7 @@ int main()
 								continue;
 							}
 							else if (b == 'y') {
-								cout << "The rent price for the car is:" << inventory[num2].price << endl;
+								cout << "The rent price for the car is:" << inventory[num2 - 1].price << endl;
 								cout << "would you like to pay cash(c) or visa(v)" << endl;
 								char e;
 								cin >> e;
@@ -186,17 +247,23 @@ int main()
 									cout << "please enter your expiration date" << endl;
 									cin.ignore();
 									getline(cin, credit[0].expiration_date);
-									ofstream file("visa.txt",ios::app);
+									ofstream file("visa.txt", ios::app);
 									file << credit[0].first_name << "," << credit[0].last_name << "," << credit[0].card_type << "," << credit[0].card_number << "," << credit[0].cvv << endl;
 									cout << "Thank you for using our online rental car system:)" << endl;
+								
 								}
+								break;
 							}
+
+							break;
 						}
-						break;
+
+
+					
 					}
-
+					
 				}
-
+	
 
 			}
 		
@@ -235,7 +302,7 @@ int main()
 					}
 					else if(status)
 					{
-						cout << "welcome back" << m << endl;
+						cout << "welcome back " << m << endl;
 						cout << "You can add cars to the inventory by providing details such as car type, model, license plate, condition, milage, year and color(a) or remove cars from inventory (r) or view Inspection date(d)" << endl;
 						char z;
 						cin >> z;
@@ -243,41 +310,56 @@ int main()
 							cout << "how many cars do you want to add?" << endl;
 							int num;
 							cin >> num;
-							cin.ignore();
+							cin.ignore();                                                        //if num lower than 0 and more than 100 then cout error
 							int carCount = 0;
+							if (num >= 0 && num <= 100) {
 
-							for (int i = 0; i < num; i++)
-							{
-								cout << "car " << carcount + 1 << endl;
-								cout << "Enter the car type" << endl;
-								getline(cin, inventory[carcount].car_type);
-								cout << "Enter the model" << endl;
-								getline(cin, inventory[carcount].model);
-								cout << "Enter the license plate" << endl;
-								getline(cin, inventory[carcount].lp);
-								cout << "Enter the condition (T=total loss,D=damaged,G=Good,P=perfect)" << endl;
-								cin >> inventory[carcount].condition;
-								cout << "Enter the milage" << endl;
-								cin >> inventory[carcount].milage;
-								cout << "Enter the year" << endl;
-								cin >> inventory[carcount].year;
-								cin.ignore();
-								cout << "Enter the color" << endl;
-								getline(cin, inventory[carcount].color);
-								cout << "is the car available for rent? (1 for yes, 0 for no)" << endl;
-								cin >> inventory[carcount].available;
-								cout << "Enter the rental price per week " << endl;
-								cin >> inventory[carcount].price;
-								carcount++;
-								cout << "Do you want to add more cars to inventory(y/n)" << endl;
-								char g;
-								cin >> g;
-								if (g == 'n') {
-									break;
+
+								for (int i = 0; i < num; i++)
+								{
+									cout << "car " << carcount + 1 << endl;
+									cout << "Enter the car type" << endl;
+									getline(cin, inventory[carcount].car_type);
+									cout << "Enter the model" << endl;
+									getline(cin, inventory[carcount].model);
+									cout << "Enter the license plate" << endl;
+									getline(cin, inventory[carcount].lp);
+									cout << "Enter the condition (T=total loss,D=damaged,G=Good,P=perfect)" << endl;
+									cin >> inventory[carcount].condition;
+									cout << "Enter the milage" << endl;
+									cin >> inventory[carcount].milage;
+									cout << "Enter the year" << endl;
+									cin >> inventory[carcount].year;
+									cin.ignore();
+									cout << "Enter the color" << endl;
+									getline(cin, inventory[carcount].color);
+									cout << "is the car available for rent? (1 for yes, 0 for no)" << endl;
+									cin >> inventory[carcount].available;
+									cout << "Enter the rental price per week " << endl;
+									cin >> inventory[carcount].price;
+									carcount++;
+									carz_staff(inventory, carcount); {
+										ifstream infile;
+										infile.open("inventory.txt");
+										while (getline(infile, line)) {
+											cout << line << endl;
+										}
+										infile.close();
+									}
+
+									cout << "Do you want to add more cars to inventory(y/n)" << endl;
+									char g;
+									cin >> g;
+									if (g == 'n') {
+										break;
+									}
+									else {
+										continue;
+									}
 								}
-								else {
-									continue;
-								}
+							}
+							else {
+								cout << "Error: number of cars must be between 0 and 100" << endl;
 							}
 						}
 
@@ -359,7 +441,7 @@ int main()
 					}
 					else if (status)
 					{
-						cout << "welcome back" << m << endl;
+						cout << "welcome back " << m << endl;
 						cout << "Welcome " << m<< " to our rental cars online program" << endl;
 						cout << "As a quality control you can view staff(v) , add date of inspection(d),severity of inspection(s)(number of defective cars and their conditions)" << endl;
 						char o;
