@@ -6,6 +6,7 @@ using namespace std;
 // project file
 // functions: cars(updated car details,Remove cars,rental prices,payment methods(cash/visa),list of cars,check cars,cancel reservation,Rent car)
 struct car {
+	string category;
 	double price;      //rental price = price per week
 	bool available;   //(true/false)
 	string car_type;
@@ -100,10 +101,10 @@ void save_counter(int& counter) {
 void load_counter(int& counter) {
 	ifstream ifile("counter.txt");
 	if (ifile.is_open()) {
-		ifile >> counter;           // Load the counter value from the file
+		ifile >> counter;            // Load the counter value from the file
 	}
 	else {
-		counter = 0;                // If the file doesn't exist, start with a counter of 0
+		counter = 0;                 // If the file doesn't exist, start with a counter of 0
 	}
 	ifile.close();
 }
@@ -135,33 +136,70 @@ void reservation(car inventory[100], visa credit[100], customer guest[100], int&
 	cin.ignore();
 	ofstream ifile;
 	ifile.open("Reservations.txt", ios::app);
-	if (e == 'c' || e == 'C') {  // FIXED: added e == 'C'
+	if (e == 'c' || e == 'C') {
 		ifile << "Payment method: Cash" << endl;
 		ifile << guest[ID - 1000].name << "," << guest[ID - 1000].age << "," << guest[ID - 1000].gender << "," << guest[ID - 1000].pn << "," << guest[ID - 1000].address << endl;
 	}
-	else if (e == 'v' || e == 'V') {  // FIXED: added e == 'V'
+	else if (e == 'v' || e == 'V') {
 		ifile << "Payment method: Visa" << endl;
 		ifile << guest[ID - 1000].name << "," << guest[ID - 1000].age << "," << guest[ID - 1000].gender << "," << guest[ID - 1000].pn << "," << guest[ID - 1000].address << endl;
 		ifile << credit[visacount].first_name << "," << credit[visacount].last_name << "," << credit[visacount].card_type << "," << credit[visacount].card_number << "," << credit[visacount].cvv << endl;
+		visacount++;
 	}
 
 	cout << "Car number " << num2 << " has been reserved successfully" << endl;
 	inventory[num2 - 1].available = false;
 	ifile.close();
-	visacount++;
-}
-void review() {
 
 }
+void cancel_reservation(car inventory[100], int carcount, int counter) {
+	int custID, carNum;
+	cout << "Enter your Customer ID: ";
+	cin >> custID;
+
+	// Validate ID range based on your 1000 + counter logic
+	if (custID < 1000 || custID >= 1000 + counter) {
+		cout << "Invalid ID. Cancellation failed." << endl;
+		return;
+	}
+
+	cout << "Enter the Car Number you wish to return/cancel: ";
+	cin >> carNum;
+
+	// Validate car number (1-indexed based on your list_inventory logic)
+	if (carNum < 1 || carNum > carcount) {
+		cout << "Invalid Car Number." << endl;
+		return;
+	}
+
+	// Update inventory status
+	if (inventory[carNum - 1].available == true) {
+		cout << "This car is not currently reserved." << endl;
+	}
+	else if (inventory[carNum - 1].available == false) {
+		inventory[carNum - 1].available = true;
+		cout << "Reservation for car " << carNum << " has been cancelled." << endl;
+
+		// Update the inventory file immediately
+		save_inventory(inventory, carcount);
+
+		// Logic to update Reservations.txt
+		// Note: Removing specific lines from a text file requires rewriting the file.
+		// For a simple project, updating the inventory 'available' status is the priority.
+
+		cout << "The car is now available for other customers." << endl;
+	}
+}
+
 void load_inventory(car inventory[100], int& carcount) {
 	ifstream ifile("inventory.txt");
 	string line;
 	if (!ifile.is_open()) {
-		carcount = 0;                                                         // If the file doesn't exist, start with an empty inventory
+		carcount = 0;                                                           // If the file doesn't exist, start with an empty inventory
 		return;
 	}
 	ifile >> carcount;
-	ifile.ignore();                                                           // Ignore the newline character after reading carcount
+	ifile.ignore();                                                             // Ignore the newline character after reading carcount
 	for (int i = 0; i < carcount; i++) {
 		getline(ifile, inventory[i].car_type);
 		getline(ifile, inventory[i].model);
@@ -175,6 +213,100 @@ void load_inventory(car inventory[100], int& carcount) {
 		ifile.ignore();
 	}
 	ifile.close();
+}
+void check_cars(car inventory[100], int& carcount) {
+	load_inventory(inventory, carcount);
+	ifstream infile;
+	infile.open("inventory.txt");
+	cout << "What is the catagory of the car you want to rent?" << endl;
+	cout << "browse all" << endl;
+	cout << "family" << endl;
+	cout << "sports" << endl;
+	cout << "luxury" << endl;
+	cout << "economics" << endl;
+	string category;                         //category of the car that the customer wants to rent
+	cin.ignore();
+	getline(cin, category);
+	if (category == "browse all") {
+		cout << "car number" << "---" << "type" << "---" << "model" << "---" << "license plate" << "---" << " color" << "---" << "car condition" << "---" << "Milage" << "---" << "year" << "---" << " price" << endl;
+		for (int i = 0; i < carcount; i++) {
+			if (inventory[i].available == true) {
+				cout << i + 1 << "---" << inventory[i].car_type << "---" << inventory[i].model << "---" << inventory[i].lp << "---" << inventory[i].color << "---" << inventory[i].condition << "---" << inventory[i].milage << "---" << inventory[i].year << "---" << inventory[i].price << endl;
+			}
+			else if (inventory[i].available == false) {
+				continue;
+			}
+		}
+		infile.close();
+	}
+	else if (category == "family") {
+		cout << "car number" << "---" << "type" << "---" << "model" << "---" << "license plate" << "---" << " color" << "---" << "car condition" << "---" << "Milage" << "---" << "year" << "---" << " price" << endl;
+		for (int i = 0; i < carcount; i++) {
+			if (inventory[i].category == "family" || inventory[i].category == "Family" || inventory[i].category == "FAMILY") {
+				if (inventory[i].available == true) {
+					cout << i + 1 << "---" << inventory[i].car_type << "---" << inventory[i].model << "---" << inventory[i].lp << "---" << inventory[i].color << "---" << inventory[i].condition << "---" << inventory[i].milage << "---" << inventory[i].year << "---" << inventory[i].price << endl;
+				}
+				else if (inventory[i].available == false) {
+					continue;
+				}
+			}
+			else {
+				continue;
+			}
+		}
+		infile.close();
+	}
+	else if (category == "sports") {
+		cout << "car number" << "---" << "type" << "---" << "model" << "---" << "license plate" << "---" << " color" << "---" << "car condition" << "---" << "Milage" << "---" << "year" << "---" << " price" << endl;
+		for (int i = 0; i < carcount; i++) {
+			if (inventory[i].category == "sports" || inventory[i].category == "Sports" || inventory[i].category == "SPORTS") {
+				if (inventory[i].available == true) {
+					cout << i + 1 << "---" << inventory[i].car_type << "---" << inventory[i].model << "---" << inventory[i].lp << "---" << inventory[i].color << "---" << inventory[i].condition << "---" << inventory[i].milage << "---" << inventory[i].year << "---" << inventory[i].price << endl;
+				}
+				else if (inventory[i].available == false) {
+					continue;
+				}
+			}
+			else {
+				continue;
+			}
+		}
+		infile.close();
+	}
+	else if (category == "luxury") {
+		cout << "car number" << "---" << "type" << "---" << "model" << "---" << "license plate" << "---" << " color" << "---" << "car condition" << "---" << "Milage" << "---" << "year" << "---" << " price" << endl;
+		for (int i = 0; i < carcount; i++) {
+			if (inventory[i].category == "luxury" || inventory[i].category == "Luxury" || inventory[i].category == "LUXURY") {
+				if (inventory[i].available == true) {
+					cout << i + 1 << "---" << inventory[i].car_type << "---" << inventory[i].model << "---" << inventory[i].lp << "---" << inventory[i].color << "---" << inventory[i].condition << "---" << inventory[i].milage << "---" << inventory[i].year << "---" << inventory[i].price << endl;
+				}
+				else if (inventory[i].available == false) {
+					continue;
+				}
+			}
+			else {
+				continue;
+			}
+		}
+		infile.close();
+	}
+	else if (category == "economics") {
+		cout << "car number" << "---" << "type" << "---" << "model" << "---" << "license plate" << "---" << " color" << "---" << "car condition" << "---" << "Milage" << "---" << "year" << "---" << " price" << endl;
+		for (int i = 0; i < carcount; i++) {
+			if (inventory[i].category == "economics" || inventory[i].category == "Economics" || inventory[i].category == "ECONOMICS") {
+				if (inventory[i].available == true) {
+					cout << i + 1 << "---" << inventory[i].car_type << "---" << inventory[i].model << "---" << inventory[i].lp << "---" << inventory[i].color << "---" << inventory[i].condition << "---" << inventory[i].milage << "---" << inventory[i].year << "---" << inventory[i].price << endl;
+				}
+				else if (inventory[i].available == false) {
+					continue;
+				}
+			}
+			else {
+				continue;
+			}
+		}
+		infile.close();
+	}
 }
 void list_customer(string username, string password, int& counter, int& ID, customer guest[]) {
 	ID = 1000 + counter;
@@ -225,14 +357,19 @@ void load_customer(customer guest[100], int& counter) {
 		getline(ifile, password, ',');
 		getline(ifile, guest[i].name, ',');
 		getline(ifile, age, ',');
-		guest[i].age = stoi(age);                 // Convert age from string to integer]
+		if (!age.empty())
+		{
+			guest[i].age = stoi(age);                 // Convert age from string to integer
+		}
 		getline(ifile, gender, ',');
 		guest[i].gender = gender[0];              // Convert gender from string to character
 		getline(ifile, guest[i].pn, ',');
 		getline(ifile, guest[i].address);
 	}
 	ifile.close();
+
 }
+
 //we can make a function for canceling the reservation and it will take the reservation number as an input and it will remove the reservation from the Reservations.txt file
 // and it will also make the car available for rent again in the inventory
 //and one for checking the reservation and it will take the reservation number as an input and it will check if the reservation exists in the Reservations.txt file
@@ -249,14 +386,14 @@ void staff_menu(car inventory[100], int& carcount) {
 		cout << " login or exit to the main menu (l/e)" << endl;
 		cin >> c;                                         //variable to choose between sign up and login for staff
 		cin.ignore();
-		if (c == 'e' || c == 'E') {  // FIXED
+		if (c == 'e' || c == 'E') {
 			break;                                                          //To end the staff infinte loop and return to the main menu
 		}
-		if (c != 'l' && c != 'L' && c != 'e' && c != 'E') {  // FIXED
+		if (c != 'l' && c != 'L' && c != 'e' && c != 'E') {
 			cout << "please enter the right letter " << endl;
 			continue;
 		}
-		if (c == 'l' || c == 'L')  // FIXED
+		if (c == 'l' || c == 'L')
 		{
 			bool status = adminlogin();
 			{
@@ -266,14 +403,14 @@ void staff_menu(car inventory[100], int& carcount) {
 					cout << "You can add cars to the inventory by providing details such as car type, model, license plate, condition, milage, year and color(a) or remove cars from inventory (r) or view Inspection date(d) or view the number of cars(v)" << endl;
 					char z;                                  //variable to choose between adding cars to the inventory, removing cars from the inventory, or viewing the inspection date for quality control
 					cin >> z;
-					if (z != 'a' && z != 'A' && z != 'r' && z != 'R' && z != 'd' && z != 'D' && z != 'v' && z != 'V') {  // FIXED
+					if (z != 'a' && z != 'A' && z != 'r' && z != 'R' && z != 'd' && z != 'D' && z != 'v' && z != 'V') {
 						cout << "please enter the right letter " << endl;
 
 					}
-					if (z == 'v' || z == 'V') {  // FIXED
+					if (z == 'v' || z == 'V') {
 						cout << "The number of cars in the inventory is: " << carcount << endl;
 					}
-					if (z == 'a' || z == 'A') {  // FIXED
+					if (z == 'a' || z == 'A') {
 						cout << "how many cars do you want to add?" << endl;
 						int num;                                 //number of cars that the staff wants to add to the inventory
 						cin >> num;
@@ -286,7 +423,33 @@ void staff_menu(car inventory[100], int& carcount) {
 							for (int i = 0; i < num; i++)
 							{
 								cout << "car " << carcount + 1 << endl;
-								cout << "Enter the car type" << endl;
+
+
+								while (true)
+								{
+
+									cout << "Enter the car type" << endl;
+									getline(cin, inventory[carcount].car_type);
+									if (inventory[carcount].car_type == "Toyota" || inventory[carcount].car_type == "toyota" || inventory[carcount].car_type == "TOYOTA" ||
+										inventory[carcount].car_type == "Bmw" || inventory[carcount].car_type == "bmw" || inventory[carcount].car_type == "BMW" ||
+										inventory[carcount].car_type == "Mercedes" || inventory[carcount].car_type == "mercedes" || inventory[carcount].car_type == "MERCEDES" ||
+										inventory[carcount].car_type == "Audi" || inventory[carcount].car_type == "audi" || inventory[carcount].car_type == "AUDI" ||
+										inventory[carcount].car_type == "Honda" || inventory[carcount].car_type == "honda" || inventory[carcount].car_type == "HONDA" ||
+										inventory[carcount].car_type == "Ford" || inventory[carcount].car_type == "ford" || inventory[carcount].car_type == "FORD" ||
+										inventory[carcount].car_type == "Chevrolet" || inventory[carcount].car_type == "chevrolet" || inventory[carcount].car_type == "CHEVROLET" ||
+										inventory[carcount].car_type == "Nissan" || inventory[carcount].car_type == "nissan" || inventory[carcount].car_type == "NISSAN" ||
+										inventory[carcount].car_type == "Hyundai" || inventory[carcount].car_type == "hyundai" || inventory[carcount].car_type == "HYUNDAI" ||
+										inventory[carcount].car_type == "Kia" || inventory[carcount].car_type == "kia" || inventory[carcount].car_type == "KIA") {
+										break;
+									}
+									else {
+										cout << "This not a valid type of car,Please try again " << endl;
+										cin.ignore();
+										getline(cin, inventory[carcount].car_type);
+										cin.clear();
+										cin.ignore(10000, '\n');
+									}
+								}
 								getline(cin, inventory[carcount].car_type);
 								cout << "Enter the model" << endl;
 								getline(cin, inventory[carcount].model);
@@ -296,11 +459,26 @@ void staff_menu(car inventory[100], int& carcount) {
 									cin.ignore(10000, '\n');
 									getline(cin, inventory[carcount].model);
 								}
+								cout << "Enter the category" << endl;
+								getline(cin, inventory[carcount].category);
+								while (true) {
+									if (inventory[carcount].category == "family" || inventory[carcount].category == "Family" || inventory[carcount].category == "FAMILY" ||
+										inventory[carcount].category == "sports" || inventory[carcount].category == "Sports" || inventory[carcount].category == "SPORTS" ||
+										inventory[carcount].category == "luxury" || inventory[carcount].category == "Luxury" || inventory[carcount].category == "LUXURY" ||
+										inventory[carcount].category == "economics" || inventory[carcount].category == "Economics" || inventory[carcount].category == "ECONOMICS") {
+										break;
+									}
+									else {
+										cout << "there is an error please try again" << endl;
+										getline(cin, inventory[carcount].category);
+									}
+
+								}
 								cout << "Enter the license plate" << endl;
 								getline(cin, inventory[carcount].lp);
 								cout << "Enter the condition (T=total loss,D=damaged,G=Good,P=perfect)" << endl;
 								cin >> inventory[carcount].condition;
-								while (cin.fail() || (inventory[carcount].condition != 'T' && inventory[carcount].condition != 't' && inventory[carcount].condition != 'D' && inventory[carcount].condition != 'd' && inventory[carcount].condition != 'G' && inventory[carcount].condition != 'g' && inventory[carcount].condition != 'P' && inventory[carcount].condition != 'p')) {  // FIXED
+								while (cin.fail() || (inventory[carcount].condition != 'T' && inventory[carcount].condition != 't' && inventory[carcount].condition != 'D' && inventory[carcount].condition != 'd' && inventory[carcount].condition != 'G' && inventory[carcount].condition != 'g' && inventory[carcount].condition != 'P' && inventory[carcount].condition != 'p')) {
 									cout << "Invalid input. Please enter 'T' or 't' for total loss, 'D' or 'd' for damaged, 'G' or 'g' for good, or 'P' or 'p' for perfect: ";
 									cin >> inventory[carcount].condition;
 								}
@@ -315,8 +493,8 @@ void staff_menu(car inventory[100], int& carcount) {
 								}
 								cout << "Enter the year" << endl;
 								cin >> inventory[carcount].year;
-								while (cin.fail() || inventory[carcount].year < 1886 || inventory[carcount].year > 2024) {
-									cout << "Error: Year must be between 1886 and 2024!" << endl;
+								while (cin.fail() || inventory[carcount].year < 2000 || inventory[carcount].year > 2026) {
+									cout << "Error: Year must be between 2000 and 2026!" << endl;
 									cout << "Enter the year" << endl;
 									cin.clear();
 									cin.ignore(10000, '\n');
@@ -327,7 +505,7 @@ void staff_menu(car inventory[100], int& carcount) {
 								getline(cin, inventory[carcount].color);
 								cout << "is the car available for rent? (1 for yes, 0 for no)" << endl;
 								cin >> inventory[carcount].available;
-								cout << "Enter the rental price per week " << endl;
+								cout << "Enter the rental price per day " << endl;
 								cin >> inventory[carcount].price;
 								carcount++;
 								save_inventory(inventory, carcount);
@@ -351,7 +529,7 @@ void staff_menu(car inventory[100], int& carcount) {
 						}
 					}
 
-					else if (z == 'r' || z == 'R') {  // FIXED
+					else if (z == 'r' || z == 'R') {
 						cout << "You can remove cars from the inventory" << endl;
 						cout << "enter the number of the car you want to remove" << endl;
 						int remove;                                     //number of the car that the staff wants to remove from the inventory and it is used to access the car details in the inventory array
@@ -383,7 +561,7 @@ void staff_menu(car inventory[100], int& carcount) {
 							}
 						}
 					}
-					else if (z == 'd' || z == 'D') {  // FIXED
+					else if (z == 'd' || z == 'D') {
 						ifstream infile;
 						infile.open("date.txt");
 						char slash = '/';
@@ -412,7 +590,7 @@ void staff_menu(car inventory[100], int& carcount) {
 
 	}
 }
-void control_menu(car inventory[100], int& carcount) {                              //quality control: their staff,date of inspection,severity of inspection(number of defective cars and their conditions)
+void control_menu(car inventory[100], int& carcount) {                               //quality control: their staff,date of inspection,severity of inspection(number of defective cars and their conditions)
 	while (true) {
 		cout << "DO you want to sign up or login or exit to the main menu (s/l/e)" << endl;
 		int day;
@@ -423,14 +601,14 @@ void control_menu(car inventory[100], int& carcount) {                          
 		char c;
 		cin >> c;                                        //variable to choose between sign up and login for quality control
 		cin.ignore();
-		if (c == 'e' || c == 'E') {  // FIXED
+		if (c == 'e' || c == 'E') {
 			break;                                                          //To end the quality control infinte loop and return to the main menu
 		}
-		if (c != 's' && c != 'S' && c != 'l' && c != 'L' && c != 'e' && c != 'E') {  // FIXED
+		if (c != 's' && c != 'S' && c != 'l' && c != 'L' && c != 'e' && c != 'E') {
 			cout << "please enter the right letter " << endl;
 			continue;
 		}
-		if (c == 's' || c == 'S')  // FIXED
+		if (c == 's' || c == 'S')
 		{
 			cout << "Please enter your username" << endl;
 			getline(cin, user);
@@ -442,7 +620,7 @@ void control_menu(car inventory[100], int& carcount) {                          
 			cout << "You have successfully signed up :)" << endl;
 			break;
 		}
-		else if (c == 'l' || c == 'L')  // FIXED
+		else if (c == 'l' || c == 'L')
 		{
 			cout << "Enter user and password" << endl;
 			cout << "user:" << endl;
@@ -464,11 +642,11 @@ void control_menu(car inventory[100], int& carcount) {                          
 					cout << "Add date of inspection(d),severity of inspection(s)(number of defective cars and their conditions)" << endl;
 					char o;                                       //variable to choose between adding the date of inspection or the severity of inspection for quality control
 					cin >> o;
-					if (o != 'd' && o != 'D' && o != 's' && o != 'S') {  // FIXED
+					if (o != 'd' && o != 'D' && o != 's' && o != 'S') {
 						cout << "please enter the right letter " << endl;
 						continue;
 					}
-					if (o == 'd' || o == 'D') {  // FIXED
+					if (o == 'd' || o == 'D') {
 						cout << "enter day of inspection" << endl;
 						cin >> day;
 						cout << "enter month of inspection" << endl;
@@ -481,7 +659,7 @@ void control_menu(car inventory[100], int& carcount) {                          
 						file.close();
 
 					}
-					else if (o == 's' || o == 'S') {  // FIXED
+					else if (o == 's' || o == 'S') {
 						load_inventory(inventory, carcount);
 						int Total_loss = 0;
 						int Damaged = 0;
@@ -519,6 +697,248 @@ void control_menu(car inventory[100], int& carcount) {                          
 	}
 }
 
+void customer_menu(car inventory[100], int& carcount) {
+	int number;                            //number of cae reserved by the customer and it is used to access the car details in the inventory array
+	customer guest[100];
+	int counter = 0;
+	int visacount = 0;
+	visa credit[100];
+	int day;                                   //day of inspection for quality control
+	int month;                                 //month of inspection for quality control
+	int year;                                  //year of inspection for quality control
+	string line;
+	string user;                                 //username for login and sign up
+	string password;                             //password for login and sign up
+	char c;                                      //variable to choose between sign up and login 
+	int ID;
+	load_counter(counter);
+	load_customer(guest, counter);
+	load_inventory(inventory, carcount);
+	ifstream infile;
+	infile.open("inventory.txt");
+
+	while (true)
+	{
+		cout << "  ____________________________________________________________________" << endl;
+		cout << "|     DO you want to sign up or login or exit to the main menu        |" << endl;
+		cout << "_______________________________________________________________________" << endl;
+		cout << "|l for login|               |s for singup|               |e for exit|   " << endl;
+		cout << "_______________________________________________________________________" << endl;
+
+		cin >> c;
+		cin.ignore();
+		if (c != 'l' && c != 'L' && c != 's' && c != 'S' && c != 'e' && c != 'E') {
+			cout << "There was an error please enter the right letter " << endl;
+		}
+		if (c == 'e' || c == 'E') {
+			break;                                                          //To end the customer infinte loop and return to the main menu
+		}
+		if (c == 's' || c == 'S')
+		{
+			cout << "****************************" << endl;
+			cout << "*Please enter your username*" << endl;
+			cout << " *                          *" << endl;
+			cout << "****************************" << endl;
+
+			getline(cin, user);
+			cout << "****************************" << endl;
+			cout << "*Please enter your password*" << endl;
+			cout << "****************************" << endl;
+
+			getline(cin, password);
+			ofstream file("login(c).txt", ios::app);
+			file << user << "," << password << endl;
+			file.close();
+			cout << "You have successfully signed up :)" << endl;
+			list_customer(user, password, counter, ID, guest);
+			break;
+		}
+		else if (c == 'l' || c == 'L')
+		{
+			cout << "**************************" << endl;
+			cout << "*Enter user and password*" << endl;
+			cout << "**************************" << endl;
+
+			cout << "user:" << endl;
+			string m;                                //username input for login
+			getline(cin, m);
+			cout << "password:" << endl;
+			string j;                                //password input for login
+			getline(cin, j);
+			bool status = login(m, j, "login(c).txt");
+			{
+				if (!status) {
+					cout << "Incorrect user or password please try again " << endl;
+					continue;
+				}
+				else if (status)
+				{
+					cout << "Please enter your ID number" << endl;
+					cin >> ID;
+					if (ID < 1000 || ID >= 1000 + counter) {
+						cout << "Error: Invalid ID number please enter a valid ID." << endl;
+						continue;
+					}
+
+					if (carcount == 0) {
+						cout << "No cars available for rent at the moment please check back later:)" << endl;
+						break;
+					}
+
+					cout << "welcome back " << m << endl;
+					cout << "As a customer you can browse available cars(b) , make reservations(m),remove your reservation(r)" << endl;
+					char m;                               //choice
+					cin >> m;
+					if (m == 'b' || m == 'B')
+					{
+						check_cars(inventory, carcount);
+
+
+
+
+
+					}
+					else if (m == 'r' || m == 'R')
+					{
+						cancel_reservation(inventory, carcount, counter);
+						break;
+					}
+					else if (m != 'b' && m != 'B' && m != 'r' && m != 'R') {
+						cout << "Please enter the right letter" << endl;
+						continue;
+					}
+					else if (m == 'm' || m == 'M')
+					{
+
+
+						while (true) {
+							cout << "what is the number of the car you want to rent" << endl;
+							int num2;                                    //number of the car that the customer wants to rent and it is used to access the car details in the inventory array
+							cin >> num2;
+							number = num2;
+							if (num2 > 0 && num2 <= carcount) {
+								if (inventory[num2 - 1].available == false) {
+									cout << "Sorry that car is not available for rent at the moment please choose another car" << endl;
+									continue;
+								}
+								else if (inventory[num2 - 1].available == true) {
+									cout << num2 << "---" << inventory[num2 - 1].car_type << "---" << inventory[num2 - 1].model << "---" << inventory[num2 - 1].lp << "---" << inventory[num2 - 1].color << "---" << inventory[num2 - 1].condition;
+									cout << "---" << inventory[num2 - 1].milage << "---" << inventory[num2 - 1].year << "---" << inventory[num2 - 1].price << endl;
+									cout << "is this is the car you want to rent(y/n)" << endl;
+								}
+								char b;                                    //variable to confirm the car that the customer wants to rent
+								cin >> b;
+								if (b == 'n') {
+									continue;
+								}
+								else if (b != 'y' && b != 'Y' && b != 'n' && b != 'N') {
+									cout << "Please enter the right letter" << endl;
+									continue;
+								}
+								else if (b == 'y' || b == 'Y') {
+									cout << "The rent price for the car is:" << inventory[num2 - 1].price << endl;
+									cout << "would you like to pay cash(c) or visa(v)" << endl;
+									char e;                                    //variable to choose payment method
+									cin >> e;
+									cin.ignore();
+									if (e == 'c' || e == 'C') {
+										cout << "Please come at our nearest store to you to pay for your rental car:)" << endl;
+										reservation(inventory, credit, guest, ID, visacount, counter, num2, e);
+										inventory[num2 - 1].available = false;
+									}
+									else if (e == 'v' || e == 'V') {
+										cout << "please enter your first name" << endl;
+										getline(cin, credit[visacount].first_name);
+										cout << "please enter your last name" << endl;
+										getline(cin, credit[visacount].last_name);
+										cout << "please enter your card type (Visa / Mastercard)" << endl;
+										while (true) {
+
+											getline(cin, credit[visacount].card_type);
+											string type = credit[visacount].card_type;
+
+											if (type == "visa" || type == "Visa" || type == "VISA" || type == "mastercard" || type == "MASTERCARD" || type == "Mastercard") {
+
+												credit[visacount].card_type = type;
+												break;
+
+											}
+											else {
+												cout << "Invalid input! Please enter only Visa or Mastercard: ";
+											}
+										}
+										cout << "please enter your card number" << endl;
+										cin >> credit[visacount].card_number;
+										string card_str = to_string(credit[visacount].card_number);
+										while (card_str.length() != 16) {
+											cout << "Error: Card number must be exactly 16 digits!" << endl;
+											cout << "please enter your card number" << endl;
+											cin >> credit[visacount].card_number;
+											card_str = to_string(credit[visacount].card_number);
+										}
+										cout << "please enter your cvv number" << endl;
+										cin >> credit[visacount].cvv;
+										string cvv_str = to_string(credit[visacount].cvv);
+										while (cvv_str.length() != 3) {
+											cout << "Error: CVV number must be exactly 3 digits!" << endl;
+											cout << "please enter your cvv number" << endl;
+											cin >> credit[visacount].cvv;
+											cvv_str = to_string(credit[visacount].cvv);
+										}
+
+										cout << "please enter your expiration date" << endl;
+										cin.ignore();
+										getline(cin, credit[visacount].expiration_date);
+										ofstream file("visa.txt", ios::app);
+										file << credit[visacount].first_name << "," << credit[visacount].last_name << "," << credit[visacount].card_type << "," << credit[visacount].card_number << "," << credit[visacount].cvv << endl;
+										cout << "Thank you for using our online rental car system:)" << endl;
+										reservation(inventory, credit, guest, ID, visacount, counter, num2, e);
+									}
+									else if (e != 'c' && e != 'C' && e != 'v' && e != 'V') {
+										cout << "Please enter the right letter" << endl;
+										continue;
+									}
+									save_inventory(inventory, carcount);
+
+
+								}
+								break;
+							}
+							else if (num2 < 1 || num2 > carcount) {                                                                                                   //if the customer enters a car number that does not exist in the inventory
+								cout << "The car number that you have entered does not exist please enter the right car number" << endl;
+								continue;
+							}
+
+							break;
+
+						}
+
+					}
+
+
+				}
+
+			}
+
+		}
+		cout << "Do you want to do another operation in the staff menu? (y/n)" << endl;
+		char choice;
+		cin >> choice;
+		if (choice == 'n' || choice == 'N') {
+			break;
+		}
+		else {
+			continue;
+		}
+
+	}
+
+
+
+
+
+}
+
 
 
 int main()
@@ -543,198 +963,37 @@ int main()
 	load_inventory(inventory, carcount);
 	ifstream infile;
 	infile.open("inventory.txt");
-	while (true)
-	{
-		cout << "choose the role(customer/staff/quality control/exit) (c/s/q/e)" << endl;
+	while (true) {
+
+		cout << "________________________________________________________________________________" << endl;
+		cout << "|                  WELCOME TO THE CAR RENTAL SYSTEM                              |" << endl;
+		cout << "_________________________________________________________________________________" << endl;
+		cout << "|choose the role|     customer|c|     staff|s|     quality control|q|     exit|e|" << endl;
+		cout << "_________________________________________________________________________________" << endl;
+
+
 		char r;                               //role of the user (customer/staff/quality control/exit) (c/s/q/e)
 		cin >> r;
 		cin.ignore();
-		if (r == 'e' || r == 'E') {  // FIXED
+		if (r == 'e' || r == 'E') {
 			break;
 		}
-		if (r != 'c' && r != 'C' && r != 's' && r != 'S' && r != 'q' && r != 'Q' && r != 'e' && r != 'E') {  // FIXED
+		if (r != 'c' && r != 'C' && r != 's' && r != 'S' && r != 'q' && r != 'Q' && r != 'e' && r != 'E') {
 			cout << "There was an error please enter the right letter " << endl;
 			continue;
 		}
-		while (r == 'c' || r == 'C')  // FIXED
-		{
-			cout << "DO you want to sign up or login or exit to the main menu (s/l/e) " << endl;
-			cin >> c;
-			cin.ignore();
-			if (c != 'l' && c != 'L' && c != 's' && c != 'S' && c != 'e' && c != 'E') {  // FIXED
-				cout << "There was an error please enter the right letter " << endl;
-			}
-			if (c == 'e' || c == 'E') {  // FIXED
-				break;                                                          //To end the customer infinte loop and return to the main menu
-			}
-			if (c == 's' || c == 'S')  // FIXED
-			{
-				cout << "Please enter your username" << endl;
-				getline(cin, user);
-				cout << "Please enter your password" << endl;
-				getline(cin, password);
-				ofstream file("login(c).txt", ios::app);
-				file << user << "," << password << endl;
-				file.close();
-				cout << "You have successfully signed up :)" << endl;
-				list_customer(user, password, counter, ID, guest);
-				break;
-			}
-			else if (c == 'l' || c == 'L')  // FIXED
-			{
-				cout << "Enter user and password" << endl;
-				cout << "user:" << endl;
-				string m;                                //username input for login
-				getline(cin, m);
-				cout << "password:" << endl;
-				string j;                                //password input for login
-				getline(cin, j);
-				bool status = login(m, j, "login(c).txt");
-				{
-					if (!status) {
-						cout << "Incorrect user or password please try again " << endl;
-						continue;
-					}
-					else if (status)
-					{
-						cout << "Please enter your ID number" << endl;
-						cin >> ID;
-						if (ID < 1000 || ID >= 1000 + counter) {
-							cout << "Error: Invalid ID number please enter a valid ID." << endl;
-							continue;
-						}
-
-						if (carcount == 0) {
-							cout << "No cars available for rent at the moment please check back later:)" << endl;
-							break;
-						}
-
-						cout << "welcome back " << m << endl;
-						cout << "As a customer you can browse available cars, make reservations, and manage your rentals" << endl;
-						cout << "car number" << "---" << "type" << "---" << "model" << "---" << "license plate" << "---" << " color" << "---" << "car condition" << "---" << "Milage" << "---" << "year" << "---" << " price" << endl;
-						for (int i = 0; i < carcount; i++) {
-							if (inventory[i].available == true) {
-								cout << i + 1 << "---" << inventory[i].car_type << "---" << inventory[i].model << "---" << inventory[i].lp << "---" << inventory[i].color << "---" << inventory[i].condition << "---" << inventory[i].milage << "---" << inventory[i].year << "---" << inventory[i].price << endl;
-							}
-							else if (inventory[i].available == false) {
-								continue;
-							}
-						}
-						infile.close();
-
-
-					}
-					while (true) {
-						cout << "what is the number of the car you want to rent" << endl;
-						int num2;                                    //number of the car that the customer wants to rent and it is used to access the car details in the inventory array
-						cin >> num2;
-						number = num2;
-						if (num2 > 0 && num2 <= carcount) {
-							if (inventory[num2 - 1].available == false) {
-								cout << "Sorry that car is not available for rent at the moment please choose another car" << endl;
-								continue;
-							}
-							else if (inventory[num2 - 1].available == true) {
-								cout << num2 << "---" << inventory[num2 - 1].car_type << "---" << inventory[num2 - 1].model << "---" << inventory[num2 - 1].lp << "---" << inventory[num2 - 1].color << "---" << inventory[num2 - 1].condition;
-								cout << "---" << inventory[num2 - 1].milage << "---" << inventory[num2 - 1].year << "---" << inventory[num2 - 1].price << endl;
-								cout << "is this is the car you want to rent(y/n)" << endl;
-							}
-							char b;                                    //variable to confirm the car that the customer wants to rent
-							cin >> b;
-							if (b == 'n') {
-								continue;
-							}
-							else if (b != 'y' && b != 'Y' && b != 'n' && b != 'N') {  // FIXED
-								cout << "Please enter the right letter" << endl;
-								continue;
-							}
-							else if (b == 'y' || b == 'Y') {  // FIXED
-								cout << "The rent price for the car is:" << inventory[num2 - 1].price << endl;
-								cout << "would you like to pay cash(c) or visa(v)" << endl;
-								char e;                                    //variable to choose payment method
-								cin >> e;
-								cin.ignore();
-								if (e == 'c' || e == 'C') {  // FIXED
-									cout << "Please come at our nearest store to you to pay for your rental car:)" << endl;
-									reservation(inventory, credit, guest, ID, visacount, counter, num2, e);
-									inventory[num2 - 1].available = false;
-								}
-								else if (e == 'v' || e == 'V') {  // FIXED
-									cout << "please enter your first name" << endl;
-									getline(cin, credit[visacount].first_name);
-									cout << "please enter your last name" << endl;
-									getline(cin, credit[visacount].last_name);
-									cout << "please enter your card type" << endl;
-									getline(cin, credit[visacount].card_type);
-									cout << "please enter your card number" << endl;
-									cin >> credit[visacount].card_number;
-									string card_str = to_string(credit[visacount].card_number);
-									while (card_str.length() != 16) {
-										cout << "Error: Card number must be exactly 16 digits!" << endl;
-										cout << "please enter your card number" << endl;
-										cin >> credit[visacount].card_number;
-										card_str = to_string(credit[visacount].card_number);
-									}
-									cout << "please enter your cvv number" << endl;
-									cin >> credit[visacount].cvv;
-									string cvv_str = to_string(credit[visacount].cvv);
-									while (cvv_str.length() != 3) {
-										cout << "Error: CVV number must be exactly 3 digits!" << endl;
-										cout << "please enter your cvv number" << endl;
-										cin >> credit[visacount].cvv;
-										cvv_str = to_string(credit[visacount].cvv);
-									}
-
-									cout << "please enter your expiration date" << endl;
-									cin.ignore();
-									getline(cin, credit[visacount].expiration_date);
-									ofstream file("visa.txt", ios::app);
-									file << credit[visacount].first_name << "," << credit[visacount].last_name << "," << credit[visacount].card_type << "," << credit[visacount].card_number << "," << credit[visacount].cvv << endl;
-									cout << "Thank you for using our online rental car system:)" << endl;
-									reservation(inventory, credit, guest, ID, visacount, counter, num2, e);
-								}
-								else if (e != 'c' && e != 'C' && e != 'v' && e != 'V') {  // FIXED
-									cout << "Please enter the right letter" << endl;
-									continue;
-								}
-								save_inventory(inventory, carcount);
-
-
-							}
-							break;
-						}
-						else if (num2 < 1 || num2 > carcount) {                                                                     //if the customer enters a car number that does not exist in the inventory
-							cout << "The car number that you have entered does not exist please enter the right car number" << endl;
-							continue;
-						}
-
-						break;
-					}
-
-
-
-				}
-
-
-			}
+		if (r == 'c' || r == 'C') {
+			customer_menu(inventory, carcount);
 
 		}
-
-
-
-
-
-
-		while (r == 's' || r == 'S') {  // FIXED
+		else if (r == 's' || r == 'S') {
 			staff_menu(inventory, carcount);
-			break;
 
 		}
-		while (r == 'q' || r == 'Q') {  // FIXED
+		else if (r == 'q' || r == 'Q') {
 			control_menu(inventory, carcount);
-			break;
-		}
 
+		}
 	}
 
 }

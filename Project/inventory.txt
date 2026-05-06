@@ -1,1 +1,10 @@
+1
+toyota
+corolla
+lme243
+red
+p
+50
+2023
+5000
 0
